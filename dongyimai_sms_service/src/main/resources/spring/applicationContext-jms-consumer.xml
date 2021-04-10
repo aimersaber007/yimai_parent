@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <context:component-scan base-package="com.offcn"/>
+    <context:property-placeholder location="classpath:properties/sms.properties"/>
+
+    <!--创建实际的连接工厂，由消息中间件的厂商提供-->
+    <bean class="org.apache.activemq.ActiveMQConnectionFactory" id="activeMQConnectionFactory">
+        <!--配置连接工厂的ip-->
+        <property name="brokerURL" value="tcp://192.168.188.128:61616"/>
+    </bean>
+    <!--由spring容器管理的连接工厂-->
+    <bean class="org.springframework.jms.connection.SingleConnectionFactory" id="singleConnectionFactory">
+        <!--将厂商提供的连接工厂注入到spring容器管理的连接工厂中-->
+        <property name="targetConnectionFactory" ref="activeMQConnectionFactory"/>
+    </bean>
+    <!--创建消息中间件的模板对象-->
+    <bean class="org.springframework.jms.core.JmsTemplate" id="jmsTemplate">
+        <!--将spring容器提供的工厂注入到模板对象中-->
+        <property name="connectionFactory" ref="singleConnectionFactory"/>
+    </bean>
+    <!--创建消息的接收队列-->
+    <bean class="org.apache.activemq.command.ActiveMQQueue" id="queueSmsDestination">
+        <constructor-arg value="dongyimai_sms_queue"/>
+    </bean>
+
+    <!--消息监听容器-->
+    <bean class="org.springframework.jms.listener.DefaultMessageListenerContainer" id="container">
+        <property name="connectionFactory" ref="activeMQConnectionFactory"/>
+        <property name="destination" ref="queueSmsDestination"/>
+        <property name="messageListener" ref="smsListener"/>
+
+    </bean>
+</beans>

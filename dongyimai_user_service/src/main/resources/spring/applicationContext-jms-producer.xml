@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+
+    <!--1.创建实际的连接工厂，由消息中间件的厂商提供-->
+    <bean class="org.apache.activemq.ActiveMQConnectionFactory" id="targetConnectionFactory">
+        <property name="brokerURL" value="tcp://192.168.188.128:61616"/>
+    </bean>
+    <!--2.由Spring容器 管理的连接工厂-->
+    <bean class="org.springframework.jms.connection.SingleConnectionFactory" id="singleConnectionFactory">
+        <property name="targetConnectionFactory" ref="targetConnectionFactory"/>
+    </bean>
+    <!--3.创建消息中间件的模板对象-->
+    <bean class="org.springframework.jms.core.JmsTemplate" id="jmsTemplate">
+        <property name="connectionFactory" ref="singleConnectionFactory"/>
+    </bean>
+    <!--4.创建一个点对点模式的消息队列-->
+    <bean class="org.apache.activemq.command.ActiveMQQueue" id="queueSmsDestination">
+        <!--消息队列的名称-->
+        <constructor-arg value="dongyimai_sms_queue"/>
+    </bean>
+</beans>

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <context:component-scan base-package="com.offcn"/>
+    <!--JMS工厂-->
+    <bean class="org.apache.activemq.ActiveMQConnectionFactory" id="activeMQConnectionFactory">
+
+        <property name="brokerURL" value="tcp://192.168.188.128:61616"/>
+
+    </bean>
+    <!--spring管理工厂-->
+    <bean class="org.springframework.jms.connection.SingleConnectionFactory" id="connectionFactory">
+        <property name="targetConnectionFactory" ref="activeMQConnectionFactory"/>
+    </bean>
+    <!--jms模板-->
+    <bean class="org.springframework.jms.core.JmsTemplate" id="jmsTemplate">
+        <property name="connectionFactory" ref="connectionFactory"/>
+    </bean>
+
+
+    <!--队列目的地，生产者-->
+    <bean class="org.apache.activemq.command.ActiveMQQueue" id="queueSolrDestination">
+        <constructor-arg value="dongyimai_queue_solr"/>
+    </bean>
+
+    <bean class="org.apache.activemq.command.ActiveMQQueue" id="queueSolrDeleteDestination">
+        <constructor-arg value="dongyimai_queue_solrDelete"/>
+    </bean>
+
+    <bean class="org.apache.activemq.command.ActiveMQQueue" id="topicPageDestination">
+        <constructor-arg value="dongyimai_topic_page"/>
+    </bean>
+
+    <bean class="org.apache.activemq.command.ActiveMQQueue" id="topicPageDeleteDestination">
+        <constructor-arg value="dongyimai_topic_page_delete"/>
+    </bean>
+
+</beans>
